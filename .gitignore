@@ -1,0 +1,48 @@
+# Dependencies
+node_modules/
+front/node_modules/
+back/node_modules/
+
+# Build outputs
+dist/
+front/dist/
+back/dist/
+build/
+front/build/
+back/build/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+front/.env
+back/.env
+
+# Database
+back/data/*.db
+back/data/*.db-journal
+back/data/*.db-wal
+back/data/*.db-shm
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Misc
+.cache/
+.temp/
+
+
