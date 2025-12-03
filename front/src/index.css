@@ -1,3 +1,50 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* AICODE-NOTE: Базовые стили для Telegram Mini App */
+@layer base {
+  body {
+    background-color: #000000; /* dark-bg */
+    color: #ffffff; /* dark-text */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* AICODE-NOTE: Учитываем safe area для Telegram WebApp */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* AICODE-NOTE: Стили для скролла в тёмной теме */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: #1a1a1a; /* dark-surface */
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: #333333; /* dark-border */
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #0f766e; /* primary-700 */
+  }
+}
+
+@layer components {
+  /* AICODE-NOTE: Фокус-индикаторы для доступности */
+  .focus-ring:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #000000, 0 0 0 4px #0d9488; /* dark-bg offset, primary-600 ring */
+  }
+
+  /* AICODE-NOTE: Анимации для плавности (Telegram guideline: "snappy, smooth") */
+  .transition-telegram {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); /* ease-out */
+    transition-duration: 200ms;
+  }
+}
