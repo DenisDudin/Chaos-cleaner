@@ -44,10 +44,10 @@ export const HomePage = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto w-full">
+    <div className="max-w-2xl mx-auto w-full" style={{ backgroundColor: '#000000', color: '#ffffff' }}>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-dark-text mb-2">Быстрый анализ</h1>
-        <p className="text-dark-textSecondary">
+        <h1 className="text-2xl font-bold mb-2" style={{ color: '#ffffff' }}>Быстрый анализ</h1>
+        <p style={{ color: '#a3a3a3' }}>
           Выберите каналы, период и введите промт для анализа
         </p>
       </div>

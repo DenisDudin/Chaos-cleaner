@@ -30,15 +30,15 @@
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background-color: #0f766e; /* primary-700 */
+    background-color: #2dd4bf; /* primary-400 - яркий бирюзовый */
   }
 }
 
 @layer components {
-  /* AICODE-NOTE: Фокус-индикаторы для доступности */
+  /* AICODE-NOTE: Фокус-индикаторы для доступности в стиле дизайна с картинки */
   .focus-ring:focus {
     outline: none;
-    box-shadow: 0 0 0 2px #000000, 0 0 0 4px #0d9488; /* dark-bg offset, primary-600 ring */
+    box-shadow: 0 0 0 2px #000000, 0 0 0 4px rgba(45, 212, 191, 0.3); /* dark-bg offset, primary-400 ring */
   }
 
   /* AICODE-NOTE: Анимации для плавности (Telegram guideline: "snappy, smooth") */

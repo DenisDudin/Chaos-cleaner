@@ -61,7 +61,7 @@ export const MultiSelect = ({
             focus-ring
             transition-telegram
             flex items-center justify-between
-            ${error ? 'border-red-500' : 'border-dark-border focus:border-primary-600'}
+            ${error ? 'border-red-500' : 'border-dark-border focus:border-primary-400 focus:ring-primary-400/20'}
           `}
         >
           <span className={selected.length === 0 ? 'text-dark-textMuted' : ''}>

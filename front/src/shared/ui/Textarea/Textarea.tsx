@@ -26,7 +26,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
             focus-ring
             transition-telegram
             resize-none
-            ${error ? 'border-red-500 focus:ring-red-500' : 'focus:border-primary-600'}
+            ${error ? 'border-red-500 focus:ring-red-500' : 'focus:border-primary-400 focus:ring-primary-400/20'}
             ${className}
           `}
           {...props}
