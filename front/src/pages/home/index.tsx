@@ -1,46 +1,111 @@
 // AICODE-NOTE: Главный экран с формой быстрого анализа
 import { useState } from 'react';
-import { Button, MultiSelect, Select, Textarea } from '../../shared/ui';
+import { Button, Input, Textarea, LoadingSpinner } from '../../shared/ui';
 
-// AICODE-TODO: Заменить моковые данные на реальные из API
-const mockChannels = [
-  { value: 'channel1', label: 'Канал 1' },
-  { value: 'channel2', label: 'Канал 2' },
-  { value: 'channel3', label: 'Канал 3' },
-];
-
-const timeRangeOptions = [
-  { value: '1d', label: 'За последние 24 часа' },
-  { value: '3d', label: 'За последние 3 дня' },
-  { value: '7d', label: 'За последние 7 дней' },
-  { value: '14d', label: 'За последние 14 дней' },
-  { value: '30d', label: 'За последний месяц' },
-];
+// AICODE-TODO: Добавить более продвинутый DatePicker компонент для лучшего UX
+// Для MVP используем нативный HTML5 date input
 
 export const HomePage = () => {
-  const [selectedChannels, setSelectedChannels] = useState<string[]>([]);
-  const [timeRange, setTimeRange] = useState('7d');
+  const [channelsInput, setChannelsInput] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [channelsError, setChannelsError] = useState('');
+  const [dateError, setDateError] = useState('');
+
+  // Валидация и парсинг каналов из строки
+  const parseChannels = (input: string): string[] => {
+    return input
+      .split(',')
+      .map(ch => ch.trim().replace(/^@/, '')) // Удаляем @ и пробелы
+      .filter(ch => ch.length > 0); // Убираем пустые значения
+  };
+
+  const validateForm = (): boolean => {
+    let isValid = true;
+    setChannelsError('');
+    setDateError('');
+
+    // Валидация каналов
+    const channels = parseChannels(channelsInput);
+    if (channels.length === 0) {
+      setChannelsError('Введите хотя бы один канал');
+      isValid = false;
+    }
+
+    // Валидация дат
+    if (!startDate || !endDate) {
+      setDateError('Выберите начальную и конечную дату');
+      isValid = false;
+    } else {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const today = new Date();
+      today.setHours(23, 59, 59, 999);
+
+      if (start > end) {
+        setDateError('Начальная дата должна быть раньше конечной');
+        isValid = false;
+      } else if (end > today) {
+        setDateError('Конечная дата не может быть в будущем');
+        isValid = false;
+      } else {
+        // Проверка на максимальный диапазон (30 дней для MVP)
+        const diffTime = Math.abs(end.getTime() - start.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        if (diffDays > 30) {
+          setDateError('Максимальный период - 30 дней');
+          isValid = false;
+        }
+      }
+    }
+
+    if (!prompt.trim()) {
+      isValid = false;
+    }
+
+    return isValid;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (selectedChannels.length === 0) {
-      // AICODE-TODO: Добавить toast-уведомления для ошибок
+    if (!validateForm()) {
       return;
     }
 
-    if (!prompt.trim()) {
-      return;
-    }
-
+    const channels = parseChannels(channelsInput);
     setIsLoading(true);
-    // AICODE-TODO: Интеграция с API для запуска анализа
-    setTimeout(() => {
+
+    try {
+      // AICODE-TODO: Добавить toast-уведомления для ошибок вместо console.error
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      const response = await fetch(`${API_BASE_URL}/api/parse-channels`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          channels,
+          startDate,
+          endDate,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Результаты парсинга:', data);
+      // AICODE-TODO: Переход на экран результата или истории вместо console.log
+    } catch (error) {
+      console.error('Ошибка при парсинге каналов:', error);
+      // AICODE-TODO: Добавить отображение ошибки пользователю
+    } finally {
       setIsLoading(false);
-      // AICODE-TODO: Переход на экран результата или истории
-    }, 2000);
+    }
   };
 
   return (
@@ -53,20 +118,49 @@ export const HomePage = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <MultiSelect
+        <Input
           label="Каналы"
-          options={mockChannels}
-          selected={selectedChannels}
-          onChange={setSelectedChannels}
-          placeholder="Выберите каналы для анализа"
+          value={channelsInput}
+          onChange={(e) => setChannelsInput(e.target.value)}
+          placeholder="@channel1, @channel2 или channel1, channel2"
+          error={channelsError}
+          helperText="Введите названия каналов через запятую (с @ или без)"
         />
 
-        <Select
-          label="Временной промежуток"
-          options={timeRangeOptions}
-          value={timeRange}
-          onChange={(e) => setTimeRange(e.target.value)}
-        />
+        <div className="space-y-2">
+          <label className="block text-sm font-medium" style={{ color: '#a3a3a3' }}>
+            Временной промежуток
+          </label>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                placeholder="Начальная дата"
+                max={endDate || undefined}
+              />
+              <p className="mt-1 text-xs" style={{ color: '#a3a3a3' }}>С</p>
+            </div>
+            <div>
+              <Input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                placeholder="Конечная дата"
+                min={startDate || undefined}
+                max={new Date().toISOString().split('T')[0]}
+              />
+              <p className="mt-1 text-xs" style={{ color: '#a3a3a3' }}>По</p>
+            </div>
+          </div>
+          {dateError && (
+            <p className="mt-1 text-sm" style={{ color: '#f87171' }}>{dateError}</p>
+          )}
+          <p className="mt-1 text-xs" style={{ color: '#a3a3a3' }}>
+            Максимальный период - 30 дней
+          </p>
+        </div>
 
         <Textarea
           label="Промт для LLM"
@@ -82,9 +176,16 @@ export const HomePage = () => {
             type="submit"
             fullWidth
             size="lg"
-            disabled={isLoading || selectedChannels.length === 0 || !prompt.trim()}
+            disabled={isLoading}
           >
-            {isLoading ? 'Анализирую...' : 'Запустить анализ'}
+            {isLoading ? (
+              <span className="flex items-center justify-center gap-2">
+                <LoadingSpinner size="sm" />
+                Анализирую...
+              </span>
+            ) : (
+              'Запустить анализ'
+            )}
           </Button>
         </div>
       </form>
