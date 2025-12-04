@@ -1,5 +1,6 @@
 // AICODE-NOTE: Базовый компонент кнопки с поддержкой доступности и Telegram UI guidelines
-import React, { ButtonHTMLAttributes, ReactNode } from 'react';
+import React from 'react';
+import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger';

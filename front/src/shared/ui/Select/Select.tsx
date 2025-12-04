@@ -1,5 +1,6 @@
 // AICODE-NOTE: Компонент выбора для временных промежутков и других опций
-import { SelectHTMLAttributes, forwardRef } from 'react';
+import { forwardRef } from 'react';
+import type { SelectHTMLAttributes } from 'react';
 
 interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;

@@ -1,5 +1,6 @@
 // AICODE-NOTE: Компонент многострочного ввода для промтов
-import { TextareaHTMLAttributes, forwardRef } from 'react';
+import { forwardRef } from 'react';
+import type { TextareaHTMLAttributes } from 'react';
 
 interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;

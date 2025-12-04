@@ -1,5 +1,6 @@
 // AICODE-NOTE: Карточка для пресетов, истории и других элементов списка
-import { ReactNode, useState } from 'react';
+import { useState } from 'react';
+import type { ReactNode } from 'react';
 import { colors } from '../colors';
 
 interface CardProps {

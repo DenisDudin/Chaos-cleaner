@@ -1,5 +1,5 @@
 // AICODE-NOTE: Layout компонент для Telegram Mini App с bottom navigation
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 interface AppLayoutProps {
   children: ReactNode;

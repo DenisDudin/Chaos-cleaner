@@ -117,15 +117,20 @@ export const MultiSelect = ({
       {selected.length > 0 && (
         <div className="mt-2 flex flex-wrap gap-2">
           {selectedOptions.map((option) => (
-            <Badge
+            <button
               key={option.value}
-              variant="primary"
-              className="cursor-pointer"
+              type="button"
               onClick={() => toggleOption(option.value)}
+              className="inline-flex items-center border-none bg-transparent p-0 cursor-pointer"
             >
-              {option.label}
-              <span className="ml-1">×</span>
-            </Badge>
+              <Badge
+                variant="primary"
+                className="cursor-pointer"
+              >
+                {option.label}
+                <span className="ml-1">×</span>
+              </Badge>
+            </button>
           ))}
         </div>
       )}
