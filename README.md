@@ -46,7 +46,7 @@ npm run dev
 
 ## Технологии
 
-- **Frontend**: React 19, TypeScript, Vite, Tailwind CSS, FSD архитектура
+- **Frontend**: React 19, TypeScript, Vite, Radix UI, FSD архитектура
 - **Backend**: Node.js, TypeScript, Express, SQLite (better-sqlite3)
 - **Связь**: REST API (в будущем планируется миграция на tRPC)
 

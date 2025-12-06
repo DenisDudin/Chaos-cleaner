@@ -1,0 +1,27 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.description {
+  font-size: 0.875rem;
+  color: var(--dark-text-muted);
+}
+
+.message {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+

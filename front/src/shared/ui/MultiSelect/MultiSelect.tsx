@@ -1,6 +1,12 @@
-// AICODE-NOTE: Компонент множественного выбора каналов
-import { useState, useRef, useEffect } from 'react';
+// AICODE-NOTE: Компонент множественного выбора на основе Radix UI Popover без Tailwind
+import { useState } from 'react';
+import * as Popover from '@radix-ui/react-popover';
+import * as Label from '@radix-ui/react-label';
+import { Check, ChevronDown } from 'lucide-react';
+import { cn } from '@/shared/lib/utils';
 import { Badge } from '../Badge';
+import styles from './MultiSelect.module.css';
+import wrapperStyles from './MultiSelect.wrapper.module.css';
 
 interface MultiSelectProps {
   label?: string;
@@ -20,18 +26,6 @@ export const MultiSelect = ({
   error,
 }: MultiSelectProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const toggleOption = (value: string) => {
     if (selected.includes(value)) {
@@ -44,99 +38,83 @@ export const MultiSelect = ({
   const selectedOptions = options.filter((opt) => selected.includes(opt.value));
 
   return (
-    <div className="w-full" ref={containerRef}>
+    <div className={styles.wrapper}>
       {label && (
-        <label className="block text-sm font-medium text-dark-textSecondary mb-2">
+        <Label.Root className={`block text-sm font-medium mb-2 ${styles.label}`}>
           {label}
-        </label>
+        </Label.Root>
       )}
-      <div className="relative">
-        <button
-          type="button"
-          onClick={() => setIsOpen(!isOpen)}
-          className={`
-            w-full px-4 py-3 min-h-touch
-            bg-dark-surface border rounded-telegram
-            text-left text-dark-text
-            focus-ring
-            transition-telegram
-            flex items-center justify-between
-            ${error ? 'border-red-500' : 'border-dark-border focus:border-primary-400 focus:ring-primary-400/20'}
-          `}
-        >
-          <span className={selected.length === 0 ? 'text-dark-textMuted' : ''}>
-            {selected.length === 0
-              ? placeholder
-              : selected.length === 1
-              ? selectedOptions[0].label
-              : `Выбрано: ${selected.length}`}
-          </span>
-          <svg
-            className={`w-5 h-5 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+      <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
+        <Popover.Trigger asChild>
+          <button
+            type="button"
+            className={cn(
+              styles.trigger,
+              error && styles.triggerError
+            )}
+            data-error={!!error}
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-
-        {isOpen && (
-          <div className="absolute z-50 w-full mt-2 bg-dark-surface border border-dark-border rounded-telegram shadow-lg max-h-60 overflow-auto">
+            <span
+              className={cn(
+                styles.triggerText,
+                selected.length === 0 && styles.triggerPlaceholder
+              )}
+            >
+              {selected.length === 0
+                ? placeholder
+                : selected.length === 1
+                ? selectedOptions[0].label
+                : `Выбрано: ${selected.length}`}
+            </span>
+            <ChevronDown
+              className={cn('w-5 h-5 transition-transform', isOpen && 'rotate-180')}
+            />
+          </button>
+        </Popover.Trigger>
+        <Popover.Portal>
+          <Popover.Content
+            className={cn(styles.menu, wrapperStyles.menuWrapper)}
+            align="start"
+            sideOffset={4}
+          >
             {options.map((option) => {
               const isSelected = selected.includes(option.value);
               return (
-                <button
+                <div
                   key={option.value}
-                  type="button"
+                  className={cn(isSelected ? styles.optionSelected : styles.option, 'cursor-pointer')}
                   onClick={() => toggleOption(option.value)}
-                  className={`
-                    w-full px-4 py-3 min-h-touch text-left
-                    transition-telegram
-                    flex items-center justify-between
-                    ${isSelected ? 'bg-primary-700/20' : 'hover:bg-dark-surfaceHover'}
-                  `}
                 >
-                  <span className="text-dark-text">{option.label}</span>
+                  <span className={styles.option}>{option.label}</span>
                   {isSelected && (
-                    <svg className="w-5 h-5 text-primary-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
+                    <Check className={`w-5 h-5 ${styles.check}`} />
                   )}
-                </button>
+                </div>
               );
             })}
-          </div>
-        )}
-      </div>
+          </Popover.Content>
+        </Popover.Portal>
+      </Popover.Root>
 
       {selected.length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-2">
+        <div className={styles.selectedList}>
           {selectedOptions.map((option) => (
             <button
               key={option.value}
               type="button"
               onClick={() => toggleOption(option.value)}
-              className="inline-flex items-center border-none bg-transparent p-0 cursor-pointer"
+              className={cn('border-none bg-transparent p-0 inline-flex items-center cursor-pointer', styles.selectedBadge)}
             >
-              <Badge
-                variant="primary"
-                className="cursor-pointer"
-              >
+              <Badge variant="primary" className={styles.selectedBadge}>
                 {option.label}
-                <span className="ml-1">×</span>
+                <span className={styles.badgeIcon}>×</span>
               </Badge>
             </button>
           ))}
         </div>
       )}
 
-      {error && <p className="mt-1 text-sm text-red-400">{error}</p>}
+      {error && <p className={`mt-1 text-sm ${styles.error}`}>{error}</p>}
     </div>
   );
 };
-

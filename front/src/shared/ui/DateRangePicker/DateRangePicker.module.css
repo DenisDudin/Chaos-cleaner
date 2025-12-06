@@ -1,0 +1,28 @@
+.button {
+  width: 100%;
+  justify-content: space-between;
+  text-align: left;
+  font-weight: 400;
+}
+
+.placeholder {
+  color: var(--dark-text-muted);
+}
+
+.icon {
+  margin-right: 0.5rem;
+  height: 1rem;
+  width: 1rem;
+}
+
+.dates {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.popoverContent {
+  width: auto;
+  padding: 0;
+}
+

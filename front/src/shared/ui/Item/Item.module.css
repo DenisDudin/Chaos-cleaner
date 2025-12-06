@@ -1,0 +1,26 @@
+.item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  transition: var(--transition-telegram);
+  color: var(--dark-text);
+}
+
+.interactive {
+  cursor: pointer;
+}
+
+.static {
+  cursor: default;
+}
+
+.interactive:hover {
+  background-color: var(--dark-surface-hover);
+}
+
+.selected {
+  background-color: rgba(15, 118, 110, 0.2);
+  color: var(--primary-400);
+}
+

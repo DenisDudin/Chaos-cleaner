@@ -1,0 +1,27 @@
+.container {
+  width: 100%;
+}
+
+.label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.error {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #ef4444;
+}
+
+.helper {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--dark-text-muted);
+}
+
+.errorInput {
+  border-color: #ef4444 !important;
+}
+

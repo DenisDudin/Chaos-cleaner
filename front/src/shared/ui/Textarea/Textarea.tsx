@@ -1,5 +1,10 @@
-// AICODE-NOTE: Компонент многострочного ввода для промтов
+// AICODE-NOTE: Shadcn Textarea component wrapper with label, error, and helperText support
 import { forwardRef } from 'react';
+// @ts-ignore - импорт из shadcn (локальная копия)
+import { Textarea as ShadcnTextarea } from '@/shared/ui/shadcn/textarea';
+import { Label } from '../Label';
+import { cn } from '@/shared/lib/utils';
+import styles from './Textarea.module.css';
 import type { TextareaHTMLAttributes } from 'react';
 
 interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
@@ -11,32 +16,26 @@ interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ label, error, helperText, className = '', ...props }, ref) => {
     return (
-      <div className="w-full">
+      <div className={styles.container}>
         {label && (
-          <label className="block text-sm font-medium text-dark-textSecondary mb-2">
+          <Label
+            htmlFor={props.id}
+            className={styles.label}
+          >
             {label}
-          </label>
+          </Label>
         )}
-        <textarea
+        <ShadcnTextarea
           ref={ref}
-          className={`
-            w-full px-4 py-3 
-            bg-dark-surface border border-dark-border 
-            rounded-telegram 
-            text-dark-text placeholder-dark-textMuted
-            focus-ring
-            transition-telegram
-            resize-none
-            ${error ? 'border-red-500 focus:ring-red-500' : 'focus:border-primary-400 focus:ring-primary-400/20'}
-            ${className}
-          `}
+          className={cn(error && styles.errorInput, className)}
+          aria-invalid={error ? 'true' : undefined}
           {...props}
         />
         {error && (
-          <p className="mt-1 text-sm text-red-400">{error}</p>
+          <p className={styles.error}>{error}</p>
         )}
         {helperText && !error && (
-          <p className="mt-1 text-sm text-dark-textMuted">{helperText}</p>
+          <p className={styles.helper}>{helperText}</p>
         )}
       </div>
     );
@@ -44,4 +43,3 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
 );
 
 Textarea.displayName = 'Textarea';
-

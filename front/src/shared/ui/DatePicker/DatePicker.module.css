@@ -1,0 +1,22 @@
+.button {
+  width: 100%;
+  justify-content: flex-start;
+  text-align: left;
+  font-weight: 400;
+}
+
+.empty {
+  color: var(--dark-text-muted);
+}
+
+.icon {
+  margin-right: 0.5rem;
+  height: 1rem;
+  width: 1rem;
+}
+
+.popoverContent {
+  width: auto;
+  padding: 0;
+}
+
