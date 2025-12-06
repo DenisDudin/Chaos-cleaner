@@ -1,6 +1,11 @@
-// AICODE-NOTE: Компонент ввода с поддержкой тёмной темы и доступности
-import { forwardRef, useState, type InputHTMLAttributes } from 'react';
-import { colors } from '../colors';
+// AICODE-NOTE: Shadcn Input component wrapper with label, error, and helperText support
+import { forwardRef } from 'react';
+// @ts-ignore - импорт из shadcn (локальная копия)
+import { Input as ShadcnInput } from '@/shared/ui/shadcn/input';
+import { Label } from '../Label';
+import { cn } from '@/shared/lib/utils';
+import styles from './Input.module.css';
+import type { InputHTMLAttributes } from 'react';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -10,42 +15,27 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, helperText, className = '', ...props }, ref) => {
-    const [isFocused, setIsFocused] = useState(false);
-    
-    const inputStyle: React.CSSProperties = {
-      width: '100%',
-      padding: '12px 16px',
-      backgroundColor: colors.dark.surface,
-      borderColor: error ? '#ef4444' : (isFocused ? colors.primary[400] : colors.dark.border),
-      borderWidth: '1px',
-      borderStyle: 'solid',
-      borderRadius: colors.borderRadius.telegram,
-      color: colors.dark.text,
-      outline: 'none',
-      boxShadow: isFocused && !error ? `0 0 0 2px rgba(45, 212, 191, 0.2)` : 'none',
-    };
-
     return (
-      <div className="w-full">
+      <div className={styles.container}>
         {label && (
-          <label className="block text-sm font-medium mb-2" style={{ color: colors.dark.textSecondary }}>
+          <Label
+            htmlFor={props.id}
+            className={styles.label}
+          >
             {label}
-          </label>
+          </Label>
         )}
-        <input
+        <ShadcnInput
           ref={ref}
-          className={`w-full transition-telegram ${className}`}
-          style={inputStyle}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
-          placeholder={props.placeholder}
+          className={cn(error && styles.errorInput, className)}
+          aria-invalid={error ? 'true' : undefined}
           {...props}
         />
         {error && (
-          <p className="mt-1 text-sm" style={{ color: '#f87171' }}>{error}</p>
+          <p className={styles.error}>{error}</p>
         )}
         {helperText && !error && (
-          <p className="mt-1 text-sm" style={{ color: colors.dark.textMuted }}>{helperText}</p>
+          <p className={styles.helper}>{helperText}</p>
         )}
       </div>
     );
@@ -53,4 +43,3 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 );
 
 Input.displayName = 'Input';
-

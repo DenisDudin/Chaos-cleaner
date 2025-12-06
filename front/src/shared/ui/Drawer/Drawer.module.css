@@ -1,0 +1,8 @@
+.grabber {
+  margin: 1rem auto 0;
+  width: 100px;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background-color: var(--dark-border);
+}
+

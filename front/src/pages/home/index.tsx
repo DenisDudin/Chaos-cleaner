@@ -1,194 +1,264 @@
 // AICODE-NOTE: Главный экран с формой быстрого анализа
 import { useState } from 'react';
-import { Button, Input, Textarea, LoadingSpinner } from '../../shared/ui';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import {
+  Button,
+  Input,
+  Textarea,
+  LoadingSpinner,
+  Item,
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormDescription,
+  FormMessage,
+  Select,
+  DateRangePicker,
+} from '@/shared/ui';
+import styles from './Home.module.css';
+import type { DateRange } from 'react-day-picker';
 
-// AICODE-TODO: Добавить более продвинутый DatePicker компонент для лучшего UX
-// Для MVP используем нативный HTML5 date input
+const rangeSchema = z
+  .object({
+    from: z.union([z.date(), z.undefined()]),
+    to: z.union([z.date(), z.undefined()]),
+  })
+  .default({ from: undefined, to: undefined });
+
+const formSchema = z.object({
+  channels: z.string().trim().min(1, 'Введите хотя бы один канал'),
+  prompt: z.string().trim().min(1, 'Введите промт'),
+  rangePreset: z.enum(['1d', '3d', '7d', '30d', 'custom']),
+  customRange: rangeSchema.optional(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 export const HomePage = () => {
-  const [channelsInput, setChannelsInput] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [channelsError, setChannelsError] = useState('');
-  const [dateError, setDateError] = useState('');
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      channels: '',
+      prompt: '',
+      rangePreset: '7d',
+      customRange: { from: undefined, to: undefined },
+    },
+  });
 
-  // Валидация и парсинг каналов из строки
+  const rangePreset = form.watch('rangePreset');
+
   const parseChannels = (input: string): string[] => {
     return input
       .split(',')
-      .map(ch => ch.trim().replace(/^@/, '')) // Удаляем @ и пробелы
-      .filter(ch => ch.length > 0); // Убираем пустые значения
+      .map(ch => ch.trim().replace(/^@/, ''))
+      .filter(ch => ch.length > 0);
   };
 
-  const validateForm = (): boolean => {
-    let isValid = true;
-    setChannelsError('');
-    setDateError('');
+  const toISODate = (date: Date) => date.toISOString().split('T')[0];
 
-    // Валидация каналов
-    const channels = parseChannels(channelsInput);
-    if (channels.length === 0) {
-      setChannelsError('Введите хотя бы один канал');
-      isValid = false;
+  const presetToRange = (preset: FormValues['rangePreset']): DateRange => {
+    const end = new Date();
+    const start = new Date();
+    switch (preset) {
+      case '1d':
+        start.setDate(end.getDate() - 1);
+        break;
+      case '3d':
+        start.setDate(end.getDate() - 3);
+        break;
+      case '7d':
+        start.setDate(end.getDate() - 7);
+        break;
+      case '30d':
+        start.setDate(end.getDate() - 30);
+        break;
+      default:
+        start.setDate(end.getDate() - 7);
     }
-
-    // Валидация дат
-    if (!startDate || !endDate) {
-      setDateError('Выберите начальную и конечную дату');
-      isValid = false;
-    } else {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      const today = new Date();
-      today.setHours(23, 59, 59, 999);
-
-      if (start > end) {
-        setDateError('Начальная дата должна быть раньше конечной');
-        isValid = false;
-      } else if (end > today) {
-        setDateError('Конечная дата не может быть в будущем');
-        isValid = false;
-      } else {
-        // Проверка на максимальный диапазон (30 дней для MVP)
-        const diffTime = Math.abs(end.getTime() - start.getTime());
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        if (diffDays > 30) {
-          setDateError('Максимальный период - 30 дней');
-          isValid = false;
-        }
-      }
-    }
-
-    if (!prompt.trim()) {
-      isValid = false;
-    }
-
-    return isValid;
+    return { from: start, to: end };
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-
-    const channels = parseChannels(channelsInput);
-    setIsLoading(true);
-
-    try {
-      // AICODE-TODO: Добавить toast-уведомления для ошибок вместо console.error
-      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-      const response = await fetch(`${API_BASE_URL}/api/parse-channels`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          channels,
-          startDate,
-          endDate,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+    await form.handleSubmit(async (values) => {
+      const channels = parseChannels(values.channels);
+      if (channels.length === 0) {
+        form.setError('channels', { message: 'Введите хотя бы один канал' });
+        return;
       }
 
-      const data = await response.json();
-      console.log('Результаты парсинга:', data);
-      // AICODE-TODO: Переход на экран результата или истории вместо console.log
-    } catch (error) {
-      console.error('Ошибка при парсинге каналов:', error);
-      // AICODE-TODO: Добавить отображение ошибки пользователю
-    } finally {
-      setIsLoading(false);
-    }
+      let range: DateRange | undefined;
+      if (values.rangePreset === 'custom') {
+        const custom = values.customRange;
+        if (!custom?.from || !custom?.to) {
+          form.setError('customRange', { message: 'Выберите даты' });
+          return;
+        }
+        range = custom;
+      } else {
+        range = presetToRange(values.rangePreset);
+      }
+
+      if (!range?.from || !range?.to) {
+        form.setError('customRange', { message: 'Выберите даты' });
+        return;
+      }
+
+      setIsLoading(true);
+
+      try {
+        const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+        const response = await fetch(`${API_BASE_URL}/api/parse-channels`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            channels,
+            startDate: toISODate(range.from),
+            endDate: toISODate(range.to),
+            prompt: values.prompt,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Результаты парсинга:', data);
+        // AICODE-TODO: Переход на экран результата или истории вместо console.log
+      } catch (error) {
+        console.error('Ошибка при парсинге каналов:', error);
+        // AICODE-TODO: Добавить отображение ошибки пользователю
+      } finally {
+        setIsLoading(false);
+      }
+    })();
   };
 
   return (
-    <div className="max-w-2xl mx-auto w-full" style={{ backgroundColor: '#000000', color: '#ffffff' }}>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-2" style={{ color: '#ffffff' }}>Быстрый анализ</h1>
-        <p style={{ color: '#a3a3a3' }}>
+    <div className={styles.container}>
+      <Item>
+
+      </Item>
+      <div className={styles.header}>
+        <h1 className={styles.title}>Быстрый анализ</h1>
+        <p className={styles.subtitle}>
           Выберите каналы, период и введите промт для анализа
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <Input
-          label="Каналы"
-          value={channelsInput}
-          onChange={(e) => setChannelsInput(e.target.value)}
-          placeholder="@channel1, @channel2 или channel1, channel2"
-          error={channelsError}
-          helperText="Введите названия каналов через запятую (с @ или без)"
-        />
-
-        <div className="space-y-2">
-          <label className="block text-sm font-medium" style={{ color: '#a3a3a3' }}>
-            Временной промежуток
-          </label>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                placeholder="Начальная дата"
-                max={endDate || undefined}
-              />
-              <p className="mt-1 text-xs" style={{ color: '#a3a3a3' }}>С</p>
-            </div>
-            <div>
-              <Input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                placeholder="Конечная дата"
-                min={startDate || undefined}
-                max={new Date().toISOString().split('T')[0]}
-              />
-              <p className="mt-1 text-xs" style={{ color: '#a3a3a3' }}>По</p>
-            </div>
-          </div>
-          {dateError && (
-            <p className="mt-1 text-sm" style={{ color: '#f87171' }}>{dateError}</p>
-          )}
-          <p className="mt-1 text-xs" style={{ color: '#a3a3a3' }}>
-            Максимальный период - 30 дней
-          </p>
-        </div>
-
-        <Textarea
-          label="Промт для LLM"
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Например: напиши новости, касающиеся AI"
-          rows={6}
-          helperText="Опишите, какую информацию вы хотите получить из выбранных каналов"
-        />
-
-        <div className="pt-4">
-          <Button
-            type="submit"
-            fullWidth
-            size="lg"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <span className="flex items-center justify-center gap-2">
-                <LoadingSpinner size="sm" />
-                Анализирую...
-              </span>
-            ) : (
-              'Запустить анализ'
+      <Form {...form}>
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <FormField
+            control={form.control}
+            name="channels"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Каналы</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="@channel1, @channel2 или channel1, channel2"
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Введите названия каналов через запятую (с @ или без)
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
             )}
-          </Button>
-        </div>
-      </form>
+          />
+
+          <div className={styles.formSection}>
+            <FormField
+              control={form.control}
+              name="rangePreset"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Временной промежуток</FormLabel>
+                  <FormControl>
+                    <Select
+                      options={[
+                        { value: '1d', label: 'Последний день' },
+                        { value: '3d', label: 'Последние 3 дня' },
+                        { value: '7d', label: 'Последняя неделя' },
+                        { value: '30d', label: 'Последний месяц' },
+                        { value: 'custom', label: 'Выбрать свой период' },
+                      ]}
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      placeholder="Выберите период"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {rangePreset === 'custom' && (
+              <FormField
+                control={form.control}
+                name="customRange"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Свой период</FormLabel>
+                    <FormControl>
+                      <DateRangePicker value={field.value} onChange={field.onChange} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+          </div>
+
+          <FormField
+            control={form.control}
+            name="prompt"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Промт для LLM</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Например: напиши новости, касающиеся AI"
+                    rows={6}
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Опишите, какую информацию вы хотите получить из выбранных каналов
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className={styles.buttonRow}>
+            <Button
+              type="submit"
+              className={styles.fullWidth}
+              size="lg"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <span className={styles.cta}>
+                  <LoadingSpinner size="sm" />
+                  Анализирую...
+                </span>
+              ) : (
+                'Запустить анализ'
+              )}
+            </Button>
+          </div>
+        </form>
+      </Form>
     </div>
   );
 };

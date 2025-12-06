@@ -1,95 +1,61 @@
-// AICODE-NOTE: Базовый компонент кнопки с поддержкой доступности и Telegram UI guidelines
-import React from 'react';
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+// AICODE-NOTE: Shadcn Button component from @ui
+import * as React from "react"
+import { Slot } from "@radix-ui/react-slot"
+import { cva, type VariantProps } from "class-variance-authority"
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
-  size?: 'sm' | 'md' | 'lg';
-  fullWidth?: boolean;
-  children: ReactNode;
-}
+import { cn } from "@/shared/lib/utils"
 
-export const Button = ({
-  variant = 'primary',
-  size = 'md',
-  fullWidth = false,
-  className = '',
-  children,
+const buttonVariants = cva(
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        destructive:
+          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+        outline:
+          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
+        secondary:
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        ghost:
+          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
+        link: "text-primary underline-offset-4 hover:underline",
+      },
+      size: {
+        default: "h-9 px-4 py-2 has-[>svg]:px-3",
+        sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
+        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
+        icon: "size-9",
+        "icon-sm": "size-8",
+        "icon-lg": "size-10",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+)
+
+function Button({
+  className,
+  variant,
+  size,
+  asChild = false,
   ...props
-}: ButtonProps) => {
-  const baseStyles = 'font-medium rounded-telegram transition-telegram focus-ring disabled:opacity-50 disabled:cursor-not-allowed';
-  
-  const getVariantStyles = (variant: string) => {
-    const base = 'text-white';
-    switch (variant) {
-      case 'primary':
-        return {
-          className: `${base} shadow-lg`,
-          style: {
-            backgroundColor: '#0f766e',
-            boxShadow: '0 10px 15px -3px rgba(15, 118, 110, 0.2)',
-          },
-          hover: { backgroundColor: '#0d9488' },
-          active: { backgroundColor: '#115e59' },
-        };
-      case 'secondary':
-        return {
-          className: `${base} border`,
-          style: {
-            backgroundColor: '#1a1a1a',
-            borderColor: '#333333',
-            color: '#ffffff',
-          },
-          hover: { backgroundColor: '#262626', borderColor: 'rgba(45, 212, 191, 0.5)' },
-        };
-      case 'ghost':
-        return {
-          className: '',
-          style: { color: '#2dd4bf' },
-          hover: { backgroundColor: '#1a1a1a' },
-          active: { backgroundColor: '#262626' },
-        };
-      case 'danger':
-        return {
-          className: base,
-          style: { backgroundColor: '#dc2626' },
-          hover: { backgroundColor: '#b91c1c' },
-          active: { backgroundColor: '#991b1b' },
-        };
-      default:
-        return { className: base, style: {}, hover: {}, active: {} };
-    }
-  };
-
-  const sizes = {
-    sm: 'px-3 py-2 text-sm min-h-touch-sm',
-    md: 'px-4 py-3 text-base min-h-touch',
-    lg: 'px-6 py-4 text-lg min-h-touch',
-  };
-
-  const variantStyles = getVariantStyles(variant);
-  const [isHovered, setIsHovered] = React.useState(false);
-  const [isActive, setIsActive] = React.useState(false);
-
-  const currentStyle = {
-    ...variantStyles.style,
-    ...(isHovered ? variantStyles.hover : {}),
-    ...(isActive ? variantStyles.active : {}),
-    borderRadius: '12px',
-  };
+}: React.ComponentProps<"button"> &
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean
+  }) {
+  const Comp = asChild ? Slot : "button"
 
   return (
-    <button
-      className={`${baseStyles} ${variantStyles.className} ${sizes[size]} ${fullWidth ? 'w-full' : ''} ${className}`}
-      style={currentStyle}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onMouseDown={() => setIsActive(true)}
-      onMouseUp={() => setIsActive(false)}
+    <Comp
+      data-slot="button"
+      className={cn(buttonVariants({ variant, size, className }))}
       {...props}
-    >
-      {children}
-    </button>
-  );
-};
+    />
+  )
+}
 
+export { Button, buttonVariants }

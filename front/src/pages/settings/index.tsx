@@ -1,6 +1,8 @@
 // AICODE-NOTE: Экран настроек (API-ключ LLM, уведомления)
 import { useState } from 'react';
-import { Input, Button, Card } from '../../shared/ui';
+import { Input, Button, Card } from '@/shared/ui';
+import { cn } from '@/shared/lib/utils';
+import styles from './Settings.module.css';
 
 export const SettingsPage = () => {
   const [apiKey, setApiKey] = useState('');
@@ -19,18 +21,18 @@ export const SettingsPage = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto w-full">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-dark-text mb-2">Настройки</h1>
-        <p className="text-dark-textSecondary">
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <h1 className={styles.title}>Настройки</h1>
+        <p className={styles.subtitle}>
           Управление API-ключами и параметрами приложения
         </p>
       </div>
 
-      <div className="space-y-4">
+      <div className={styles.stack}>
         <Card>
-          <h2 className="text-lg font-semibold text-dark-text mb-4">LLM API</h2>
-          <div className="space-y-4">
+          <h2 className={styles.sectionTitle}>LLM API</h2>
+          <div className={styles.stack}>
             <Input
               label="API-ключ"
               type="password"
@@ -39,42 +41,35 @@ export const SettingsPage = () => {
               placeholder="Введите ваш API-ключ"
               helperText="Ключ хранится локально и используется для запросов к LLM"
             />
-            <Button variant="primary" onClick={handleSave} disabled={isSaving}>
+            <Button variant="default" onClick={handleSave} disabled={isSaving}>
               {isSaving ? 'Сохранение...' : 'Сохранить'}
             </Button>
           </div>
         </Card>
 
         <Card>
-          <h2 className="text-lg font-semibold text-dark-text mb-4">Уведомления</h2>
-          <div className="flex items-center justify-between">
+          <h2 className={styles.sectionTitle}>Уведомления</h2>
+          <div className={styles.row}>
             <div>
-              <p className="text-dark-text">Уведомления о завершении анализа</p>
-              <p className="text-sm text-dark-textMuted">
+              <p className={styles.sectionTitle}>Уведомления о завершении анализа</p>
+              <p className={styles.sectionSubtitle}>
                 Получать уведомления, когда анализ завершён
               </p>
             </div>
             <button
               onClick={() => setNotifications(!notifications)}
-              className={`
-                relative inline-flex h-6 w-11 items-center rounded-full transition-colors
-                ${notifications ? 'bg-primary-400' : 'bg-dark-border'}
-                focus-ring
-              `}
+              className={cn(styles.toggle, notifications && styles.toggleActive)}
             >
               <span
-                className={`
-                  inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-md
-                  ${notifications ? 'translate-x-6' : 'translate-x-1'}
-                `}
+                className={cn(styles.toggleKnob, notifications && styles.toggleKnobActive)}
               />
             </button>
           </div>
         </Card>
 
         <Card>
-          <h2 className="text-lg font-semibold text-dark-text mb-4">О приложении</h2>
-          <div className="space-y-2 text-sm text-dark-textSecondary">
+          <h2 className={styles.sectionTitle}>О приложении</h2>
+          <div className={styles.aboutText}>
             <p>Версия: 1.0.0</p>
             <p>ChaosCleaner — анализ и сводки из Telegram-каналов</p>
           </div>
@@ -83,4 +78,3 @@ export const SettingsPage = () => {
     </div>
   );
 };
-

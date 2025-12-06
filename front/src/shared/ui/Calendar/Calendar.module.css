@@ -1,0 +1,9 @@
+.weekNumberCell {
+  display: flex;
+  height: var(--cell-size, 2rem);
+  width: var(--cell-size, 2rem);
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+

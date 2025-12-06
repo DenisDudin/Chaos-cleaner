@@ -15,7 +15,7 @@
 ---
 
 ## 2. Стек технологий
-* Frontend: **React + TypeScript**, FSD, Tailwind (UI).
+* Frontend: **React + TypeScript**, FSD, Radix UI (UI компоненты).
 * Backend: **Node.js + TypeScript (Express)**.
 * Типобезопасная связь: **tRPC + Zod**.
 * DB: **Postgres**.

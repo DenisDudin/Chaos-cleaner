@@ -1,6 +1,7 @@
 // AICODE-NOTE: Экран пресетов с карточками сохранённых наборов
 import { useState } from 'react';
-import { Card, Badge, Button } from '../../shared/ui';
+import { Card, Badge, Button } from '@/shared/ui';
+import styles from './Presets.module.css';
 
 // AICODE-TODO: Заменить на реальные данные из API
 interface Preset {
@@ -50,30 +51,30 @@ export const PresetsPage = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto w-full">
-      <div className="mb-6 flex items-center justify-between">
+    <div className={styles.container}>
+      <div className={styles.headerRow}>
         <div>
-          <h1 className="text-2xl font-bold text-dark-text mb-2">Пресеты</h1>
-          <p className="text-dark-textSecondary">
+          <h1 className={styles.headerTitle}>Пресеты</h1>
+          <p className={styles.headerSubtitle}>
             Сохранённые наборы каналов, промтов и настроек
           </p>
         </div>
-        <Button variant="primary" size="sm">
+        <Button variant="default" size="sm">
           + Создать
         </Button>
       </div>
 
       {presets.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-dark-textMuted mb-4">Пресеты пока не созданы</p>
-          <Button variant="primary">Создать первый пресет</Button>
+        <div className={styles.empty}>
+          <p className={styles.emptyText}>Пресеты пока не созданы</p>
+          <Button variant="default">Создать первый пресет</Button>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className={styles.list}>
           {presets.map((preset) => (
             <Card key={preset.id} interactive onClick={() => handleRunPreset(preset)}>
-              <div className="flex items-start justify-between mb-3">
-                <h3 className="text-lg font-semibold text-dark-text">{preset.name}</h3>
+              <div className={styles.cardHeader}>
+                <h3 className={styles.cardTitle}>{preset.name}</h3>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -86,10 +87,10 @@ export const PresetsPage = () => {
                 </Button>
               </div>
 
-              <div className="space-y-2 mb-3">
+              <div className={styles.cardContent}>
                 <div>
-                  <span className="text-sm text-dark-textMuted">Каналы: </span>
-                  <div className="flex flex-wrap gap-2 mt-1">
+                  <span className={styles.label}>Каналы: </span>
+                  <div className={styles.chips}>
                     {preset.channels.map((channel) => (
                       <Badge key={channel} variant="primary">
                         {channel}
@@ -99,21 +100,21 @@ export const PresetsPage = () => {
                 </div>
 
                 <div>
-                  <span className="text-sm text-dark-textMuted">Время: </span>
+                  <span className={styles.label}>Время: </span>
                   <Badge variant="default">{timeRangeLabels[preset.timeRange]}</Badge>
                 </div>
 
                 <div>
-                  <span className="text-sm text-dark-textMuted">Промт: </span>
-                  <p className="text-sm text-dark-textSecondary mt-1 line-clamp-2">
+                  <span className={styles.label}>Промт: </span>
+                  <p className={styles.prompt}>
                     {preset.prompt}
                   </p>
                 </div>
               </div>
 
               <Button
-                variant="primary"
-                fullWidth
+                variant="default"
+                className={styles.cardFooter}
                 size="sm"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -129,4 +130,3 @@ export const PresetsPage = () => {
     </div>
   );
 };
-
