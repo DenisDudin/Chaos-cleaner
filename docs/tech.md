@@ -36,6 +36,10 @@
 * **Storage:** primary DB (posts, channels, presets, users, runs, audit_logs), blob storage для медиа, Redis для кеша/rate limits.
 * **Workers:** парсинг каналов, pre‑processing, асинхронные LLM‑запросы.
 
+### REST API (MVP)
+* `POST /api/parse-channels` — парсинг сообщений каналов за период.
+* `GET /api/channels/search?query=...&limit=5` — поиск публичных аккаунтов/каналов через MTProto (до 5 подсказок). Ответ: `{ channels: [{ handle, title, type, photoUrl? }] }`.
+
 ---
 
 ## 4. Data model (ключевые сущности)

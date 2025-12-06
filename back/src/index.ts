@@ -52,6 +52,7 @@ import cors from 'cors';
 import './shared/database'; // Инициализация БД
 import { parseChannels } from './parsing/service';
 import { ParseChannelsRequest } from './parsing/types';
+import { searchTelegramAccounts } from './parsing/search';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -101,6 +102,27 @@ app.post('/api/parse-channels', async (req, res) => {
     res.status(500).json({ 
       error: errorMessage 
     });
+  }
+});
+
+// Endpoint для поиска аккаунтов/каналов по подстроке
+app.get('/api/channels/search', async (req, res) => {
+  try {
+    const query = (req.query.query || req.query.q || '').toString().trim();
+    const limitRaw = typeof req.query.limit === 'string' ? parseInt(req.query.limit, 10) : undefined;
+    const limit = Number.isFinite(limitRaw) ? limitRaw : undefined;
+
+    if (!query) {
+      return res.status(400).json({ error: 'Пустой запрос' });
+    }
+
+    const suggestions = await searchTelegramAccounts(query, limit);
+
+    res.json({ channels: suggestions });
+  } catch (error) {
+    console.error('Ошибка при поиске каналов:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка';
+    res.status(500).json({ error: errorMessage });
   }
 });
 

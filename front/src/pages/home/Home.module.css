@@ -73,3 +73,105 @@
   gap: 0.75rem;
 }
 
+.labelRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.badgeRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.channelBadge {
+  padding: 0.35rem 0.5rem;
+  font-size: 0.75rem;
+}
+
+.suggestionsWrapper {
+  position: relative;
+}
+
+.suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 0.35rem;
+  background-color: var(--dark-surface-hover);
+  border: 1px solid var(--dark-border);
+  border-radius: 0.75rem;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+  z-index: 10;
+  overflow: hidden;
+}
+
+.suggestionItem {
+  width: 100%;
+  text-align: left;
+  padding: 0.65rem 0.75rem;
+  background: transparent;
+  border: none;
+  color: var(--dark-text);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.suggestionItem:hover {
+  background-color: var(--dark-bg);
+}
+
+.suggestionItemContent {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.suggestionAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: var(--dark-surface);
+}
+
+.suggestionAvatarFallback {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--dark-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: var(--dark-text-secondary);
+}
+
+.suggestionText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.suggestionTitle {
+  color: var(--dark-text);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.suggestionHandle {
+  color: var(--dark-text-secondary);
+  font-size: 0.85rem;
+}
+
+.suggestionStatus {
+  padding: 0.65rem 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--dark-text-secondary);
+}
+
